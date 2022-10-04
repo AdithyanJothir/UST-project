@@ -19,15 +19,13 @@ class CountryGraph(MongoengineObjectType):
 
 
 
-
-
-
     
 
 class Query(graphene.ObjectType):
     country_query = graphene.List(CountryGraph,id = graphene.Int(required = True))
     countries_query = graphene.List(CountryGraph,first = graphene.Int(),skip = graphene.Int())
     countries_by_language = graphene.List(CountryGraph,lang = graphene.String(required = True))
+    countries_nearby = graphene.List(CountryGraph,loc = graphene.List(graphene.Int))
     goodbye = graphene.String()
 
 
@@ -49,6 +47,11 @@ class Query(graphene.ObjectType):
    
     def resolve_countries_by_language(root, info, lang):
         ctry = Country.objects(languages = lang)
+        
+        return list(ctry)
+
+    def resolve_countries_nearby(root, info, loc):
+        ctry = Country.objects(latlong__near = loc)
         return list(ctry)
 
     def resolve_goodbye(root, info):

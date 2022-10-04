@@ -15,11 +15,12 @@ response = response.json()
 
 for i in range(len(response)):
     
+    
     try:
         country = Country(country_id = i ,name = response[i]['name']['official'],area = response[i]['area'],
         timezone = response[i]['timezones'],languages =list(response[i]['languages'].keys()),
         continents =  response[i]['continents'],un_member = response[i]['unMember'],
-        latlong =response[i]['latlng'],capital = response[i]['capital'],
+        latlong =response[i]['latlng'][::-1],capital = response[i]['capital'],
         independance = response[i]['independent'], region = response[i]['region'] )
     except Exception as e:
         print(e)

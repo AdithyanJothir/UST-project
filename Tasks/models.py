@@ -11,5 +11,6 @@ class Country(Document):
     continents = ListField(StringField())
     un_member = BooleanField()
     languages = ListField(StringField())
-    latlong = ListField(IntField())
-    region = StringField()
+    latlong = PointField()
+    region = StringField() 
+    
