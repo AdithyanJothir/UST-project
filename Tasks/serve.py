@@ -1,12 +1,12 @@
 import falcon
 from models import Country 
 from falcon_graphene import GrapheneRouter
-import graphene
-from graphene.relay import Node
+import graphene 
+from graphene.relay import Node,Connection,ConnectionField
 from mongoengine import *
 from graphene_mongo import MongoengineConnectionField,MongoengineObjectType
 from graphene.types.generic import GenericScalar # solution
-
+from graphql import GraphQLError
 
 
 connect('countries')
@@ -21,27 +21,30 @@ class CountryGraph(MongoengineObjectType):
 
 
 
-# class CountriesConenction(relay.Connection):
-#     class Meta:
-#         node  = Country
-#     class Edge:
-#         other  = 
 
     
 
 class Query(graphene.ObjectType):
-    # country_query = 
-    countries_query = graphene.List(CountryGraph)
+    country_query = graphene.List(CountryGraph,id = graphene.Int(required = True))
+    countries_query = graphene.List(CountryGraph,first = graphene.Int(),skip = graphene.Int())
     goodbye = graphene.String()
 
 
-    def resolve_countries_query(root, info):
+    def resolve_countries_query(root, info,first,skip):
         ctry = Country.objects.all()
+        if skip:
+            ctry  = ctry[skip:]
+        if first:
+            ctry = ctry[:first]
+            
         return list(ctry)
 
-    # def resolve_country_query(root, info, id):
-    #     ctry = Country.objects(country_id=id).first()
-    #     return ctry
+    def resolve_country_query(root, info, id):
+        if isinstance(id,int) == False:
+            raise GraphQLError('Please enter a valid id')
+        else:
+            ctry = Country.objects(country_id= id)
+            return list(ctry)
         
 
 
@@ -54,6 +57,6 @@ class Query(graphene.ObjectType):
 schema = graphene.Schema(query=Query)
 
 
-application = falcon.App()
+application = falcon.API()
 schema = graphene.Schema(query=Query)
 router = GrapheneRouter.from_schema(schema).serving_on(application)

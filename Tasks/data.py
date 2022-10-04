@@ -28,3 +28,5 @@ def connect_db():
             country.validate()
             country.save()
 
+
+connect_db()
