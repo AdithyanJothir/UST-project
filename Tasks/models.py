@@ -10,6 +10,6 @@ class Country(Document):
     independance = BooleanField()
     continents = ListField(StringField())
     un_member = BooleanField()
-    languages = DictField(StringField())
-    population = IntField()
+    languages = ListField(StringField())
+    latlong = ListField(IntField())
     region = StringField()
