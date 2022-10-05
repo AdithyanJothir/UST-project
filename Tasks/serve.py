@@ -6,7 +6,7 @@ import graphene
 from graphene.relay import Node,Connection,ConnectionField
 from mongoengine import *
 from graphene_mongo import MongoengineConnectionField,MongoengineObjectType
-from graphene.types.generic import GenericScalar # solution
+from graphene.types.generic import GenericScalar 
 from graphql import GraphQLError
 
 
@@ -17,19 +17,21 @@ class CountryGraph(MongoengineObjectType):
     languages = GenericScalar()
     class Meta:
         model = Country
+
+
         
 class CountryMutation(graphene.Mutation):
 
     class Arguments:
-        name = graphene.String(required = True)
+        country_id = graphene.Int(required = True)
         area = graphene.Float(required = True)
         region = graphene.String(required = True)
         population = graphene.Int(required =True)
     
-    country = graphene.Field(lambda:CountryGraph)
+    country = graphene.Field(CountryGraph)
     
-    def mutate(self,info,name,area,population,region):
-        country = Country.objects.get(name=name)
+    def mutate(self,info,area,population,region,country_id):
+        country = Country.objects.get(country_id=country_id)
         country.population = population
         country.area = area
         country.region = region
@@ -42,22 +44,28 @@ class CountryMutation(graphene.Mutation):
     
 
 class Query(graphene.ObjectType):
-    country_query = graphene.List(CountryGraph,id = graphene.Int(required = True))
-    countries_query = graphene.List(CountryGraph,first = graphene.Int(),next= graphene.Int())
+    country_query = graphene.Field(CountryGraph,id = graphene.Int(required = True))
+    countries_query = graphene.List(CountryGraph,first  = graphene.Int(),skip = graphene.Int())
     countries_by_language = graphene.List(CountryGraph,lang = graphene.String(required = True))
     countries_nearby = graphene.List(CountryGraph,loc = graphene.List(graphene.Int))
     goodbye = graphene.String()
 
 
-    def resolve_countries_query(root, info):
+    def resolve_countries_query(root,info,first,skip):
         ctry = Country.objects.all()
-            
-        return ctry
+        if skip:
+            ctry = ctry[skip:]
+        if first:
+            ctry = ctry[:first]
+        if skip and first:
+            ctry = ctry[skip:skip+first]
+        
+        return list(ctry)
 
     def resolve_country_query(root, info, id):
         try:
             ctry = Country.objects.get(country_id= id)
-            return list(ctry)
+            return ctry
         except Exception as e:
             print(e)
             raise (e)
@@ -82,7 +90,7 @@ class Mutation(graphene.ObjectType):
 
 
 application = falcon.API()
-schema = graphene.Schema(query=Query,mutation = Mutation )
+schema = graphene.Schema(query=Query,mutation = Mutation)
 try:
     router = GrapheneRouter.from_schema(schema).serving_on(application)
 except Exception as e:
