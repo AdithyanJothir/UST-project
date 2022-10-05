@@ -13,4 +13,5 @@ class Country(Document):
     languages = ListField(StringField())
     latlong = PointField()
     region = StringField() 
+    population = IntField()
     

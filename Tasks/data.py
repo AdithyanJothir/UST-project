@@ -21,7 +21,7 @@ for i in range(len(response)):
         timezone = response[i]['timezones'],languages =list(response[i]['languages'].keys()),
         continents =  response[i]['continents'],un_member = response[i]['unMember'],
         latlong =response[i]['latlng'][::-1],capital = response[i]['capital'],
-        independance = response[i]['independent'], region = response[i]['region'] )
+        independance = response[i]['independent'], region = response[i]['region'] ,population = response[i]['population'])
     except Exception as e:
         print(e)
     finally:
