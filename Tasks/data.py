@@ -5,7 +5,7 @@ from models import Country
 
 
 
-     
+    
 connect('countries')
 
 url = "https://restcountries.com/v3.1/all"
@@ -14,7 +14,6 @@ response = response.json()
 
 
 for i in range(len(response)):
-    
     
     try:
         country = Country(country_id = i ,name = response[i]['name']['official'],area = response[i]['area'],
