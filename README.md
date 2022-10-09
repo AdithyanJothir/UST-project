@@ -131,11 +131,13 @@ query{
 #### Step6: (Question 2.5 countryEditMutation)
 ```bash
 mutation{
-	countryEditMutation(name:"Kingdom of Norway",area:5000,
-    region:"Africa",population:10000)
-    {
+	countryEditMutation(countryId:10,area:5000,
+	region:"Africa",population:10000)
+	{
 		country{
-			area
+			area,
+			region,
+			population
 		}
 	}
 }
